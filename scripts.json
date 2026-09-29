@@ -29640,6 +29640,22 @@
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Tools/ForDevelopers/SummarizeStatistics.cs"
   },
   {
+    "name": "GenerateQuestFilesv3",
+    "description": "Lean quest data generator — fetch quests in throttled batches and save.",
+    "tags": [
+      "debug",
+      "quest",
+      "data",
+      "generation",
+      "v3"
+    ],
+    "path": "Tools/ForDevelopers/GenerateQuestFilesv4.cs",
+    "size": 19752,
+    "sha256": "ed72cce29e7ced366abcec6e258f0e3737df97594d415d48b9468352700af3f1",
+    "fileName": "GenerateQuestFilesv4.cs",
+    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Tools/ForDevelopers/GenerateQuestFilesv4.cs"
+  },
+  {
     "name": "Merge Template Helper v2",
     "description": "Generates a merge bot and teaches local ingredients from live monsterDrops packets.",
     "tags": [
@@ -29688,22 +29704,6 @@
     "sha256": "a273b75de42a07b798ef305525cfc3dbea50d15b954b2576494ec6d9df7a2dac",
     "fileName": "WeeklyReleaseGeneratorV2.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Tools/ForDevelopers/WeeklyReleaseGeneratorV2.cs"
-  },
-  {
-    "name": "GenerateQuestFilesv3",
-    "description": "Lean quest data generator — no fluff, just fetch quests in batches and save.",
-    "tags": [
-      "debug",
-      "quest",
-      "data",
-      "generation",
-      "v3"
-    ],
-    "path": "Tools/ForDevelopers/GenerateQuestFilesv3.cs",
-    "size": 13641,
-    "sha256": "e887216975bb63c4d8ee60186d07fff849b4b0c1e1a9ade18a86037a5e41b7fc",
-    "fileName": "GenerateQuestFilesv3.cs",
-    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Tools/ForDevelopers/GenerateQuestFilesv3.cs"
   },
   {
     "name": "Merge Shop Bot Generator/Helper",
