@@ -1,6 +1,6 @@
 /*
 name: GenerateQuestFilesv3
-description: Lean quest data generator — no fluff, just fetch quests in batches and save.
+description: Lean quest data generator — fetch quests in throttled batches and save.
 tags: debug, quest, data, generation, v3
 */
 
@@ -33,12 +33,26 @@ public class QuestFileUpdaterV3
 
     public List<IOption> Options =
     [
-        new Option<int>("TargetQuestID", "Target Quest ID", "Stop syncing when this quest ID is reached.", 10799),
+        // when generating, AE has now made it so if you load an QID *PAST* the last id they have it will dc you... ( 10882 at the time of writting, 10883 and beyond dcs you.)
+        new Option<int>("TargetQuestID", "Target Quest ID", "Stop syncing when this quest ID is reached.", 10882),
         new Option<string>("QuestRange", "Quest ID Range (start,end)", "Force-regenerate a specific range. Empty = continue from last ID + 1.", ""),
         new Option<int>("BatchSize", "Batch Size", "Quest IDs per request.", 30),
         new Option<string>("SkipRange", "Skip Quest Range (start,end)", "Skip this range entirely.", ""),
+        // v3.1: throttling options — too many back-to-back requests is what gets the client kicked.
+        new Option<int>("RequestDelay", "Request Delay (ms)", "Delay before every request. Raise this if you still get disconnected.", 1500),
+        new Option<int>("MaxEmptyBatches", "Max Empty Batches", "Stop after this many consecutive empty batches (end of data).", 10),
         CoreBots.Instance.SkipOptions,
     ];
+
+    // v3.1: after this many requests, take a longer break so the server never sees a constant stream.
+    private const int CooldownEvery = 20;
+    private const int CooldownMs = 5000;
+    // v3.1: log a progress line only every N successful batches instead of every batch.
+    private const int LogEveryBatches = 10;
+
+    private int requestDelay = 1500;
+    private int requestCount;
+    private bool aborted;
 
     public void ScriptMain(IScriptInterface bot)
     {
@@ -55,15 +69,19 @@ public class QuestFileUpdaterV3
             string range = Bot.Config!.Get<string>("QuestRange") ?? "";
             int batchSize = Bot.Config!.Get<int>("BatchSize");
             string skipRaw = Bot.Config!.Get<string>("SkipRange") ?? "";
+            int maxEmpty = Bot.Config!.Get<int>("MaxEmptyBatches");
+            requestDelay = Bot.Config!.Get<int>("RequestDelay");
 
-            if (batchSize < 1) batchSize = 1;
-            if (batchSize > 500) batchSize = 500;
+            batchSize = Math.Clamp(batchSize, 1, 500);
+            maxEmpty = Math.Max(maxEmpty, 1);
+            // v3.1: never allow a delay so small that it defeats the throttle.
+            requestDelay = Math.Max(requestDelay, 250);
 
             // Parse skip range
             int skipStart = 0, skipEnd = 0;
             if (!string.IsNullOrWhiteSpace(skipRaw))
             {
-                var parts = skipRaw.Split(',');
+                string[] parts = skipRaw.Split(',');
                 if (parts.Length >= 2 && int.TryParse(parts[0], out int ss) && int.TryParse(parts[1], out int se))
                 {
                     skipStart = ss;
@@ -79,10 +97,10 @@ public class QuestFileUpdaterV3
             // Load existing data
             List<QuestData> existingData = File.Exists(clientPath)
                 ? service.GetFromFileAsync(clientPath).GetAwaiter().GetResult()
-                : new List<QuestData>();
+                : [];
 
-            var map = new Dictionary<int, QuestData>(existingData.Count);
-            foreach (var q in existingData)
+            Dictionary<int, QuestData> map = new(existingData.Count);
+            foreach (QuestData q in existingData)
                 map[q.ID] = q;
 
             // Determine range to fetch
@@ -90,7 +108,7 @@ public class QuestFileUpdaterV3
 
             if (!string.IsNullOrWhiteSpace(range))
             {
-                var parts = range.Split(',');
+                string[] parts = range.Split(',');
                 fetchStart = parts.Length > 0 && int.TryParse(parts[0], out int ps) ? ps : 1;
                 fetchEnd = parts.Length > 1 && int.TryParse(parts[1], out int pe) ? pe : targetMaxId;
                 Core.Logger($"Range mode: {fetchStart} to {fetchEnd}");
@@ -114,60 +132,40 @@ public class QuestFileUpdaterV3
             }
 
             // Fetch in batches
-            int added = 0, updated = 0, emptyInARow = 0;
-            var seenThisRun = new HashSet<int>();
-            int batchCount = 0;
+            int added = 0, updated = 0, emptyInARow = 0, batchCount = 0;
+            HashSet<int> seenThisRun = [];
 
             int s = fetchStart;
-            while (s <= fetchEnd && !Bot.ShouldExit)
+            // v3.1: `aborted` is set when the player drops, so we stop instead of hammering a dead session.
+            while (s <= fetchEnd && !Bot.ShouldExit && !aborted)
             {
-                if (Bot.ShouldExit) break;
-
                 int e = Math.Min(s + batchSize - 1, fetchEnd);
 
                 // Check skip range — if any ID in [s, e] falls within [skipStart, skipEnd]
                 if (skipEnd > 0 && e >= skipStart && s <= skipEnd)
                 {
-                    // Process the portion before the skip range first
+                    // Process the portion before the skip range first (logging removed: the skip range is already announced once above)
                     if (s < skipStart)
-                    {
-                        int preEnd = skipStart - 1;
-                        Core.Logger($"Fetching quests {s} to {preEnd} (before skip range)...");
-                        FetchProbe(service, clientPath, s, preEnd, existingData, map, seenThisRun, ref added, ref updated);
-                    }
+                        FetchProbe(service, clientPath, s, skipStart - 1, existingData, map, seenThisRun, ref added, ref updated);
 
-                    Core.Logger($"Skipping quests {skipStart} to {skipEnd} (in skip range).");
                     s = skipEnd + 1;
                     continue;
                 }
 
                 // Skip if all IDs in this batch are already in the map
-                if (existingData.Count > 0)
+                if (existingData.Count > 0 && Enumerable.Range(s, e - s + 1).All(map.ContainsKey))
                 {
-                    bool allKnown = true;
-                    for (int id = s; id <= e; id++)
-                    {
-                        if (!map.ContainsKey(id))
-                        {
-                            allKnown = false;
-                            break;
-                        }
-                    }
-                    if (allKnown)
-                    {
-                        s += batchSize;
-                        continue;
-                    }
+                    s += batchSize;
+                    continue;
                 }
 
-                Core.Logger($"Fetching quests {s} to {e}...");
                 int foundInBatch = FetchProbe(service, clientPath, s, e, existingData, map, seenThisRun, ref added, ref updated);
                 if (foundInBatch == 0)
                 {
-                    emptyInARow++;
-                    if (emptyInARow >= 50)
+                    // v3.1: empty batches are silent now; only the stop condition is logged.
+                    if (++emptyInARow >= maxEmpty)
                     {
-                        Core.Logger($"50 consecutive empty batches, stopping at quest {s}.");
+                        Core.Logger($"{maxEmpty} consecutive empty batches, stopping at quest {s}.");
                         break;
                     }
                     s += batchSize;
@@ -175,19 +173,21 @@ public class QuestFileUpdaterV3
                 }
 
                 emptyInARow = 0;
-
                 batchCount++;
-                Core.Logger($"Done with quests {s} to {e} ({foundInBatch} returned, {added + updated} total new/changed so far)");
 
-                // Auto-save every 10 batches so progress isn't lost
+                // v3.1: one progress line every LogEveryBatches batches instead of two lines per batch.
+                if (batchCount % LogEveryBatches == 0)
+                    Core.Logger($"Progress: quest {e}/{fetchEnd} | Added: {added} | Updated: {updated}");
+
+                // Auto-save every 10 batches so progress isn't lost (quiet save, no log)
                 if (batchCount % 10 == 0)
-                    SaveFiles(existingData, clientPath, scriptsPath);
+                    SaveFiles(existingData, clientPath, scriptsPath, false);
 
                 s += batchSize;
             }
 
             SaveFiles(existingData, clientPath, scriptsPath);
-            Core.Logger($"Done. Total: {existingData.Count} | Added: {added} | Updated: {updated}");
+            Core.Logger($"{(aborted ? "Stopped early (disconnected). " : "")}Done. Total: {existingData.Count} | Added: {added} | Updated: {updated}");
         }
         catch (System.Exception ex)
         {
@@ -199,7 +199,7 @@ public class QuestFileUpdaterV3
         }
     }
 
-    private void SaveFiles(List<QuestData> data, string clientPath, string scriptsPath)
+    private void SaveFiles(List<QuestData> data, string clientPath, string scriptsPath, bool log = true)
     {
         string json = JsonConvert.SerializeObject(data, Formatting.Indented);
         File.WriteAllText(clientPath, json);
@@ -211,7 +211,8 @@ public class QuestFileUpdaterV3
         {
             Core.Logger($"Warning: Failed to copy quest data to scripts path: {ex.Message}");
         }
-        Core.Logger($"Saved {data.Count} quests.");
+        if (log)
+            Core.Logger($"Saved {data.Count} quests.");
     }
 
     private static bool QuestChanged(QuestData a, QuestData b)
@@ -267,18 +268,18 @@ public class QuestFileUpdaterV3
         ref int added,
         ref int updated)
     {
-        foreach (var quest in batch)
+        foreach (QuestData quest in batch)
         {
             if (!seenThisRun.Add(quest.ID))
                 continue;
 
-            if (!map.ContainsKey(quest.ID))
+            if (!map.TryGetValue(quest.ID, out QuestData? old))
             {
                 existingData.Add(quest);
                 map[quest.ID] = quest;
                 added++;
             }
-            else if (QuestChanged(map[quest.ID], quest))
+            else if (QuestChanged(old, quest))
             {
                 int idx = existingData.FindIndex(x => x.ID == quest.ID);
                 if (idx >= 0) existingData[idx] = quest;
@@ -289,8 +290,45 @@ public class QuestFileUpdaterV3
     }
 
     /// <summary>
+    /// v3.1: single choke point for every loader request. Adds the delay, a periodic cooldown,
+    /// a connection check, and error handling so nothing else can spam the server.
+    /// Returns null when the request failed, was empty, or the script should stop.
+    /// </summary>
+    private List<QuestData>? Request(IQuestDataLoaderService loader, string filePath, int start, int end)
+    {
+        if (Bot.ShouldExit || aborted)
+            return null;
+
+        // Stop cleanly if the player dropped instead of firing requests into a dead session.
+        if (Bot.Player?.LoggedIn != true)
+        {
+            Core.Logger("Player is no longer logged in, stopping. Saved progress is kept.");
+            aborted = true;
+            return null;
+        }
+
+        Bot.Sleep(requestDelay);
+
+        // Longer breather every CooldownEvery requests.
+        if (++requestCount % CooldownEvery == 0)
+            Bot.Sleep(CooldownMs);
+
+        try
+        {
+            return loader.UpdateRangeAsync(filePath, start, end, null, CancellationToken.None).GetAwaiter().GetResult();
+        }
+        catch (System.Exception ex)
+        {
+            // Back off hard on errors rather than immediately retrying the next range.
+            Core.Logger($"Request {start}-{end} failed: {ex.Message}");
+            Bot.Sleep(5000);
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Tries to fetch a range of quests. If the batch returns empty (possible undefined IDs poisoning the request),
-    /// falls back to probing each ID individually.
+    /// falls back to sub-batches, then individual IDs. Every request goes through <see cref="Request"/>.
     /// Returns the number of quests found.
     /// </summary>
     private int FetchProbe(
@@ -304,8 +342,8 @@ public class QuestFileUpdaterV3
         ref int updated)
     {
         // Fast path: try the full range first
-        var batch = loader.UpdateRangeAsync(filePath, start, end, null, CancellationToken.None).GetAwaiter().GetResult();
-        if (batch != null && batch.Count > 0)
+        List<QuestData>? batch = Request(loader, filePath, start, end);
+        if (batch?.Count > 0)
         {
             ProcessBatch(batch, existingData, map, seenThisRun, ref added, ref updated);
             return batch.Count;
@@ -315,12 +353,12 @@ public class QuestFileUpdaterV3
         int found = 0;
         const int subBatchSize = 5;
 
-        for (int subStart = start; subStart <= end && !Bot.ShouldExit; subStart += subBatchSize)
+        for (int subStart = start; subStart <= end && !Bot.ShouldExit && !aborted; subStart += subBatchSize)
         {
             int subEnd = Math.Min(subStart + subBatchSize - 1, end);
-            var sub = loader.UpdateRangeAsync(filePath, subStart, subEnd, null, CancellationToken.None).GetAwaiter().GetResult();
+            List<QuestData>? sub = Request(loader, filePath, subStart, subEnd);
 
-            if (sub != null && sub.Count > 0)
+            if (sub?.Count > 0)
             {
                 ProcessBatch(sub, existingData, map, seenThisRun, ref added, ref updated);
                 found += sub.Count;
@@ -328,10 +366,10 @@ public class QuestFileUpdaterV3
             }
 
             // Sub-batch still empty — probe each ID individually
-            for (int probe = subStart; probe <= subEnd && !Bot.ShouldExit; probe++)
+            for (int probe = subStart; probe <= subEnd && !Bot.ShouldExit && !aborted; probe++)
             {
-                var single = loader.UpdateRangeAsync(filePath, probe, probe, null, CancellationToken.None).GetAwaiter().GetResult();
-                if (single != null && single.Count > 0)
+                List<QuestData>? single = Request(loader, filePath, probe, probe);
+                if (single?.Count > 0)
                 {
                     ProcessBatch(single, existingData, map, seenThisRun, ref added, ref updated);
                     found += single.Count;
@@ -339,8 +377,6 @@ public class QuestFileUpdaterV3
             }
         }
 
-        if (found > 0)
-            Core.Logger($"Found {found} quest(s) in range {start}-{end} via sub-batch probing (some IDs undefined).");
         return found;
     }
 }
