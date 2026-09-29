@@ -472,10 +472,10 @@ public class Core13LoC
         {
             Core.EnsureAccept(470);
             Core.HuntMonsterMapID("Junkyard", 1, "Wild Kara-Kasa", 5);
-            Core.HuntMonsterMapID("Junkyard", 2, "Wild Bakezouri", 1);
             Core.HuntMonsterMapID("Junkyard", 4, "Wild Bura-Bura", 4);
             Core.HuntMonsterMapID("Junkyard", 3, "Wild Biwa-Bokuboku", 3);
-            Core.HuntMonsterMapID("Junkyard", 12, "Wild Koto-Furunushi", 2);
+            Core.HuntMonsterMapID("Junkyard", 6, "Wild Koto-Furunushi", 2);
+            Core.HuntMonsterMapID("Junkyard", 2, "Wild Bakezouri", 1);
             Core.EnsureComplete(470);
         }
 
