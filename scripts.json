@@ -15489,6 +15489,22 @@
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Other/MergeShops/DeimosDenRewardsMerge.cs"
   },
   {
+    "name": "Yulgars Burgers Merge",
+    "description": "Farms the Yulgars Burgers Merge [1884] in /borgars.",
+    "tags": [
+      "borgars",
+      "merge",
+      "yulgars",
+      "burgers",
+      "merge"
+    ],
+    "path": "Other/MergeShops/YulgarsBurgers.cs",
+    "size": 6573,
+    "sha256": "1ce78720c5fe3d1031864c9dfd1fbe05759e561495569bb4a36b8c3fbd2e4f20",
+    "fileName": "YulgarsBurgers.cs",
+    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Other/MergeShops/YulgarsBurgers.cs"
+  },
+  {
     "name": "StormCacheMerge",
     "description": "null",
     "tags": [
@@ -16594,29 +16610,16 @@
   },
   {
     "name": "Cysero Merge",
-    "description": "This bot will farm the items belonging to the selected mode for the Cysero Merge [668] in /battleontown",
+    "description": "Farms the Cysero Merge [668] in /battleontown.",
     "tags": [
-      "cysero",
-      "merge",
       "battleontown",
-      "mad",
-      "magic",
-      "manawalker",
-      "mana",
-      "green",
-      "sockatana",
-      "living",
-      "yogurt",
-      "warrior",
-      "berry",
-      "tasty",
-      "gilded",
-      "rainbow",
-      "wrap"
+      "merge",
+      "cysero",
+      "merge"
     ],
     "path": "Other/MergeShops/CyseroMerge.cs",
-    "size": 4733,
-    "sha256": "edf907607b31318c635bbf1cf3fc5f19fa7d491cb8cc7b6aff9fa36cfa35c1d0",
+    "size": 6322,
+    "sha256": "5ee2bb2e0bc1e7712c1606fb18b41ae2977fcf3509281137788365756b67c299",
     "fileName": "CyseroMerge.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Other/MergeShops/CyseroMerge.cs"
   },
