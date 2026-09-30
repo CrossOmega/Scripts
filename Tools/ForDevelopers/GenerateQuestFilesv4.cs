@@ -298,7 +298,7 @@ public class QuestFileUpdaterV4
                 map[quest.ID] = quest;
                 added++;
             }
-            else if (QuestChanged(old, quest))
+            else if (QuestChanged(old!, quest))
             {
                 int idx = existingData.FindIndex(x => x.ID == quest.ID);
                 if (idx >= 0) existingData[idx] = quest;
