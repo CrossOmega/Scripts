@@ -10799,8 +10799,8 @@
       "hollowborn"
     ],
     "path": "Hollowborn/Materials/HollowSoul.cs",
-    "size": 1346,
-    "sha256": "e8590cf48dbf36aa2cfeefb7b3ef06604de75c218527431f487142e976facbbe",
+    "size": 1296,
+    "sha256": "b4b32cc8b6bbae58b17036ac97f5c3cfbe8b39ac5ac05aaacd76675b4750daca",
     "fileName": "HollowSoul.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Hollowborn/Materials/HollowSoul.cs"
   },
