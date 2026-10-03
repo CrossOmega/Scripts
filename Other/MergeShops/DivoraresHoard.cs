@@ -83,7 +83,7 @@ public class DivoraresHoard
 
     public List<IOption> Select =
     [
-        new Option<bool>("102129", "Divorare ShadowSlayer", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer\" ?", false),
+        new Option<bool>("102129", "Divorare ShadowSlayer (Armor)", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer (Armor)\" ?", false),
         new Option<bool>("102128", "Chosen Divorare ShadowSlayer", "Mode: [select] only\nShould the bot buy \"Chosen Divorare ShadowSlayer\" ?", false),
         new Option<bool>("102142", "Dual Divorare's Hunger", "Mode: [select] only\nShould the bot buy \"Dual Divorare's Hunger\" ?", false),
         new Option<bool>("102143", "Divorare's Pseudo-Talons", "Mode: [select] only\nShould the bot buy \"Divorare's Pseudo-Talons\" ?", false),
@@ -93,7 +93,7 @@ public class DivoraresHoard
         new Option<bool>("102132", "Divorare ShadowSlayer Scarf", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer Scarf\" ?", false),
         new Option<bool>("102133", "Divorare ShadowSlayer Sash", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer Sash\" ?", false),
         new Option<bool>("102134", "Divorare ShadowSlayer Hat", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer Hat\" ?", false),
-        new Option<bool>("102135", "Divorare ShadowSlayer", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer\" ?", false),
+        new Option<bool>("102135", "Divorare ShadowSlayer (Helm)", "Mode: [select] only\nShould the bot buy \"Divorare ShadowSlayer (Helm)\" ?", false),
         new Option<bool>("102141", "Divorare's Hunger", "Mode: [select] only\nShould the bot buy \"Divorare's Hunger\" ?", false),
     ];
 }
