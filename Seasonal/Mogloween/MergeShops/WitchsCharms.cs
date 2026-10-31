@@ -10,6 +10,7 @@ tags: walpurgisnacht, merge, witchs, charms, merge
 //cs_include Scripts/Seasonal/Mogloween/CoreMogloween.cs
 using Skua.Core.Interfaces;
 using Skua.Core.Models.Items;
+using Skua.Core.Models.Monsters;
 using Skua.Core.Options;
 
 public class WitchsCharms
