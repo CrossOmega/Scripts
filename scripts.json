@@ -8839,6 +8839,22 @@
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/00DoAllMogloweenStory.cs"
   },
   {
+    "name": "Eldritchbattletown",
+    "description": "This will complete the Eldritchbattletown Story quest.",
+    "tags": [
+      "story",
+      "quest",
+      "mogloween",
+      "seasonal",
+      "eldritchbattletown"
+    ],
+    "path": "Seasonal/Mogloween/15Eldritchbattletown.cs",
+    "size": 984,
+    "sha256": "a0b0b02a1086d187bbee78889d7c414cb1b47d9e2c243e3bd9ae554035971cc7",
+    "fileName": "15Eldritchbattletown.cs",
+    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/15Eldritchbattletown.cs"
+  },
+  {
     "name": "Candy Corn Story",
     "description": "This will complete the Candy Corn story quest.",
     "tags": [
@@ -8862,8 +8878,8 @@
       "null"
     ],
     "path": "Seasonal/Mogloween/CoreMogloween.cs",
-    "size": 42992,
-    "sha256": "781d4551337a63f9143cafaf7e2782f1b67cd86c6d8cd0b28df035f8708fa106",
+    "size": 45335,
+    "sha256": "d24bc9139b0ecc454f5316b0de79910d808c09d96e44ddc1745c8d61e577af31",
     "fileName": "CoreMogloween.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/CoreMogloween.cs"
   },
@@ -8898,7 +8914,7 @@
     ],
     "path": "Seasonal/Mogloween/19ShadowSlayerWar.cs",
     "size": 888,
-    "sha256": "6952824ed6afa5c28a4178222bdae54dc0ef517050ebff851d39c34257cd2054",
+    "sha256": "67fab8cf0d051d9ee5189677d42e3c4dec0e33aeb8c307c3aef927866332e3c3",
     "fileName": "19ShadowSlayerWar.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/19ShadowSlayerWar.cs"
   },
@@ -8934,22 +8950,6 @@
     "sha256": "0b77d2c27eaa606fc20495c1a34d7403381ff259fc7e1a170dd1650a3beb4f10",
     "fileName": "04PieStory.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/04PieStory.cs"
-  },
-  {
-    "name": "Eldritchbattletown",
-    "description": "This will complete the Eldritchbattletown Story quest.",
-    "tags": [
-      "story",
-      "quest",
-      "mogloween",
-      "seasonal",
-      "eldritchbattletown"
-    ],
-    "path": "Seasonal/Mogloween/015Eldritchbattletown.cs",
-    "size": 984,
-    "sha256": "a0b0b02a1086d187bbee78889d7c414cb1b47d9e2c243e3bd9ae554035971cc7",
-    "fileName": "015Eldritchbattletown.cs",
-    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/015Eldritchbattletown.cs"
   },
   {
     "name": "Twigs Arcade Story",
@@ -9154,6 +9154,21 @@
     "sha256": "3494cd44ac9108a4e4028aa3dcacb062d1b477fb4bb66391d21053aeb7ef4909",
     "fileName": "06PoeHubStory.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/06PoeHubStory.cs"
+  },
+  {
+    "name": "Walpurgisnacht",
+    "description": "Completes the quest chain in /walpurgisnacht.",
+    "tags": [
+      "walpurgisnacht",
+      "story",
+      "quests",
+      "walpurgisnacht"
+    ],
+    "path": "Seasonal/Mogloween/20Walpurgisnacht.cs",
+    "size": 971,
+    "sha256": "479cd3c44d4582e083846c21de89667dc1abc20618039191c23508f72a3f4f41",
+    "fileName": "20Walpurgisnacht.cs",
+    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/20Walpurgisnacht.cs"
   },
   {
     "name": "(Class) Vampire Lord",
@@ -32467,6 +32482,22 @@
     "sha256": "5b88c75d14251058718742ec6ae2b31fbf8ed16b4f7c609d276556bc21b73e53",
     "fileName": "TricktownMerge.cs",
     "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/MergeShops/TricktownMerge.cs"
+  },
+  {
+    "name": "Witchs Charms Merge",
+    "description": "Farms the Witchs Charms Merge [2796] in /walpurgisnacht.",
+    "tags": [
+      "walpurgisnacht",
+      "merge",
+      "witchs",
+      "charms",
+      "merge"
+    ],
+    "path": "Seasonal/Mogloween/MergeShops/WitchsCharms.cs",
+    "size": 8321,
+    "sha256": "0b8c69972b9cb52a5623b424c0a4c6867c6df906f9512fda2afd0e6bf37d17c2",
+    "fileName": "WitchsCharms.cs",
+    "downloadUrl": "https://raw.githubusercontent.com/auqw/Scripts/Skua/Seasonal/Mogloween/MergeShops/WitchsCharms.cs"
   },
   {
     "name": "Hunters Reward Merge",
