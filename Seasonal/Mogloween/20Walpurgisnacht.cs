@@ -22,7 +22,7 @@ public class Walpurgisnacht
     public void ScriptMain(IScriptInterface Bot)
     {
         Core.SetOptions();
-        if (!Core.isCompletedBefore(10478)){
+        if (!Core.isCompletedBefore(10905)){
 			CoreMogloween.BirgittaMogloween();
 		}
 		
